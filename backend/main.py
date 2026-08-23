@@ -33,7 +33,7 @@ class AnalyzeResponse(BaseModel):
 
 @app.get("/")
 async def serve_frontend():
-    frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "index.html")
+    frontend_path = os.path.join(os.path.dirname(__file__), "frontend", "index.html")
     return FileResponse(frontend_path)
 
 @app.post("/api/analyze")
