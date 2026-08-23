@@ -6,7 +6,6 @@ from typing import List, Dict
 import os
 import sys
 
-# Add parent directory to path so we can import services
 sys.path.insert(0, os.path.dirname(__file__))
 
 from services.review_aggregator import fetch_reviews
@@ -15,6 +14,7 @@ from services.fake_review_detector import detect_fake_reviews
 from services.price_comparator import fetch_prices, find_alternatives
 from services.trust_checker import check_trust
 from services.recommendation import build_recommendation
+from services.chatbot import chat_with_bot
 
 app = FastAPI()
 
@@ -32,9 +32,16 @@ class AnalyzeResponse(BaseModel):
     recommendation: Dict
     demo_mode: bool
 
+class ChatRequest(BaseModel):
+    message: str
+    analysis: Dict  # Previous analysis context
+
+class ChatResponse(BaseModel):
+    reply: str
+    suggestion: str
+
 @app.get("/")
 async def serve_frontend():
-    # Current file is /app/backend/main.py, so go up to /app then into frontend
     frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "index.html")
     return FileResponse(frontend_path)
 
@@ -63,6 +70,12 @@ async def analyze(request: AnalyzeRequest) -> AnalyzeResponse:
         recommendation=recommendation,
         demo_mode=True
     )
+
+@app.post("/api/chat")
+async def chat(request: ChatRequest) -> ChatResponse:
+    """Chat endpoint for customer support bot"""
+    reply, suggestion = chat_with_bot(request.message, request.analysis)
+    return ChatResponse(reply=reply, suggestion=suggestion)
 
 if __name__ == "__main__":
     import uvicorn
