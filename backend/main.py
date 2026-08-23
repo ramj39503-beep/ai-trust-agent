@@ -6,6 +6,7 @@ from typing import List, Dict
 import os
 import sys
 
+# Add parent directory to path so we can import services
 sys.path.insert(0, os.path.dirname(__file__))
 
 from services.review_aggregator import fetch_reviews
@@ -33,7 +34,8 @@ class AnalyzeResponse(BaseModel):
 
 @app.get("/")
 async def serve_frontend():
-    frontend_path = os.path.join(os.path.dirname(__file__), "frontend", "index.html")
+    # Current file is /app/backend/main.py, so go up to /app then into frontend
+    frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "index.html")
     return FileResponse(frontend_path)
 
 @app.post("/api/analyze")
